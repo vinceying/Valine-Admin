@@ -1,7 +1,7 @@
 'use strict';
 const nodemailer = require('nodemailer');
 const ejs = require('ejs');
-const fs  = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 let config = {
@@ -20,7 +20,7 @@ if (process.env.SMTP_SERVICE != null) {
 }
 
 const transporter = nodemailer.createTransport(config);
-let templateName = process.env.TEMPLATE_NAME ?  process.env.TEMPLATE_NAME : "default";
+let templateName = process.env.TEMPLATE_NAME ? process.env.TEMPLATE_NAME : "default";
 let noticeTemplate = ejs.compile(fs.readFileSync(path.resolve(process.cwd(), 'template', templateName, 'notice.ejs'), 'utf8'));
 let sendTemplate = ejs.compile(fs.readFileSync(path.resolve(process.cwd(), 'template', templateName, 'send.ejs'), 'utf8'));
 
@@ -29,19 +29,19 @@ let sendTemplate = ejs.compile(fs.readFileSync(path.resolve(process.cwd(), 'temp
 exports.notice = (comment) => {
 
     // 站长自己发的评论不需要通知
-    if (comment.get('mail') === process.env.TO_EMAIL 
-        || comment.get('mail') === process.env.SMTP_USER) {
+    if (comment.get('mail') === process.env.TO_EMAIL ||
+        comment.get('mail') === process.env.SMTP_USER) {
         return;
     }
 
-    let emailSubject = ' 叮咚，您在「' + process.env.SITE_NAME + '」上有新评论了';
-    let emailContent =  noticeTemplate({
-                            siteName: process.env.SITE_NAME,
-                            siteUrl: process.env.SITE_URL,
-                            name: comment.get('nick'),
-                            text: comment.get('comment'),
-                            url: process.env.SITE_URL + comment.get('url')
-                        });
+    let emailSubject = ' 🍉！ 您在「' + process.env.SITE_NAME + '」上有新评论了';
+    let emailContent = noticeTemplate({
+        siteName: process.env.SITE_NAME,
+        siteUrl: process.env.SITE_URL,
+        name: comment.get('nick'),
+        text: comment.get('comment'),
+        url: process.env.SITE_URL + comment.get('url')
+    });
 
     let mailOptions = {
         from: '"' + process.env.SENDER_NAME + '" <' + process.env.SMTP_USER + '>',
@@ -63,23 +63,23 @@ exports.notice = (comment) => {
 
 
 // 发送邮件通知他人
-exports.send = (currentComment, parentComment)=> {
+exports.send = (currentComment, parentComment) => {
 
     // 站长被 @ 不需要提醒
-    if (parentComment.get('mail') === process.env.TO_EMAIL 
-        || parentComment.get('mail') === process.env.SMTP_USER) {
+    if (parentComment.get('mail') === process.env.TO_EMAIL ||
+        parentComment.get('mail') === process.env.SMTP_USER) {
         return;
     }
-    let emailSubject = '👉 叮咚！「' + process.env.SITE_NAME + '」上有人@了你';
+    let emailSubject = '🍉 ！「' + process.env.SITE_NAME + '」上有人@了你';
     let emailContent = sendTemplate({
-                            siteName: process.env.SITE_NAME,
-                            siteUrl: process.env.SITE_URL,
-                            pname: parentComment.get('nick'),
-                            ptext: parentComment.get('comment'),
-                            name: currentComment.get('nick'),
-                            text: currentComment.get('comment'),
-                            url: process.env.SITE_URL + currentComment.get('url') + "#" + currentComment.get('pid')
-                        });
+        siteName: process.env.SITE_NAME,
+        siteUrl: process.env.SITE_URL,
+        pname: parentComment.get('nick'),
+        ptext: parentComment.get('comment'),
+        name: currentComment.get('nick'),
+        text: currentComment.get('comment'),
+        url: process.env.SITE_URL + currentComment.get('url') + "#" + currentComment.get('pid')
+    });
     let mailOptions = {
         from: '"' + process.env.SENDER_NAME + '" <' + process.env.SMTP_USER + '>',
         to: parentComment.get('mail'),
@@ -98,12 +98,12 @@ exports.send = (currentComment, parentComment)=> {
 };
 
 // 该方法可验证 SMTP 是否配置正确
-exports.verify = function(){
+exports.verify = function() {
     console.log("....");
     transporter.verify(function(error, success) {
         if (error) {
             console.log(error);
         }
         console.log("Server is ready to take our messages");
-    });    
+    });
 };
